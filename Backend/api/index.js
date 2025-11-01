@@ -28,4 +28,6 @@ app.get('/',(req,res)=>{
     res.send('API Working')
 })
 
-export default app;
+export default function handler(req, res) {
+  return app(req, res);
+}
