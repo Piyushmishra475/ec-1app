@@ -6,7 +6,7 @@ import ProductItem from '../Components/ProductItem';
 
 const Collection = () => {
 
-  const {products , search , showSearch} = useContext(ShopContext)
+  const {products , search , showSearch, getProductsData} = useContext(ShopContext)
   const [showFilter, setShowFilter] = useState(false);
 
   const [filterProducts, setFilterProducts]= useState([]);
@@ -29,15 +29,26 @@ const Collection = () => {
 
 
   const toggleSubCategory=(e)=>{
-     if(subCategory.includes(e.target.value)){
+    console.log('Checkbox clicked:', e.target.value, 'Current subCategory:', subCategory);
+    if(subCategory.includes(e.target.value)){
       setSubCategory(prev=>prev.filter(item=> item !==e.target.value))
-  }else{
+    }else{
       setSubCategory(prev=>[...prev,e.target.value])
-  }
+    }
   }
 
   const applyFIlter=()=>{
     let productsCopy = products.slice()
+    console.log('All products full:', products);
+    console.log('First product detailed:', products[0]);
+    console.log('All products mapped:', products.map(p => ({
+      name: p.name, 
+      subcategory: p.subcategory,
+      subCategory: p.subCategory,
+      keys: Object.keys(p)
+    })));
+    console.log('Selected subCategories:', subCategory);
+    
     if(showSearch && search){
       productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
     }
@@ -47,7 +58,24 @@ const Collection = () => {
     }
 
     if(subCategory.length>0){
-      productsCopy = productsCopy.filter(item=> subCategory.includes(item.subCategory));
+      productsCopy = productsCopy.filter(item=> {
+        // Temporary fix: assign subcategory based on product name
+        let tempSubcategory = 'Topwear'; // default for t-shirts, tops, etc.
+        
+        const name = item.name.toLowerCase();
+        if (name.includes('trouser') || name.includes('jean') || name.includes('pant')) {
+          tempSubcategory = 'Bottomwear';
+        } else if (name.includes('jacket') || name.includes('winter') || name.includes('coat')) {
+          tempSubcategory = 'Winterwear';
+        } else if (name.includes('t-shirt') || name.includes('top') || name.includes('shirt')) {
+          tempSubcategory = 'Topwear';
+        }
+        
+        const match = subCategory.includes(tempSubcategory);
+        console.log(`Product "${item.name}": assigned subcategory=${tempSubcategory}, selected filters=${subCategory}, match=${match}`);
+        return match;
+      });
+      console.log('Filtered products count:', productsCopy.length);
     }
 
     setFilterProducts(productsCopy);
@@ -115,13 +143,13 @@ const Collection = () => {
           <p className='mb-3 text-sm font-medium'>TYPE</p>
           <div className='flex flex-col gap-2 text-sm font-light text-gray-700'>
               <p className='flex gap-2'>
-                  <input className='w-3' type="checkbox" value={'Topwear'} onChange={toggleSubCategory}/> Topwear
+                  <input className='w-3' type="checkbox" value={'Topwear'} checked={subCategory.includes('Topwear')} onChange={toggleSubCategory}/> Topwear
               </p>
                <p className='flex gap-2'>
-                  <input className='w-3' type="checkbox" value={'Bottomwear'} onChange={toggleSubCategory}/> Bottomwear
+                  <input className='w-3' type="checkbox" value={'Bottomwear'} checked={subCategory.includes('Bottomwear')} onChange={toggleSubCategory}/> Bottomwear
               </p>
                <p className='flex gap-2'>
-                  <input className='w-3' type="checkbox" value={'Winterwear'} onChange={toggleSubCategory}/> Winterwear
+                  <input className='w-3' type="checkbox" value={'Winterwear'} checked={subCategory.includes('Winterwear')} onChange={toggleSubCategory}/> Winterwear
               </p>
           </div>
       </div>

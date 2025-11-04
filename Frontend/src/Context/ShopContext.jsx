@@ -116,6 +116,7 @@ const updateQuantity = async (itemId, size, quantity) => {
     const response = await axios.get(backendUrl+'/api/product/list');
 
     if (response.data.success) {
+      console.log('Products fetched:', response.data.products);
       setProducts(response.data.products);
     } else {
       toast.error(response.data.message);
@@ -169,7 +170,8 @@ useEffect(() => {
             cartItems, addToCart,
             getCartCount, updateQuantity,
             getCartAmount, navigate, backendUrl,
-            setToken, token, setCartItems, loading
+            setToken, token, setCartItems, loading,
+            getProductsData
      };
 
     return(
